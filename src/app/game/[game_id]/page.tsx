@@ -1,15 +1,16 @@
 'use client'
 
-import { Text, Box, Flex, Spacer, Input, Button, HStack, useNumberInput, Center, SimpleGrid } from '@chakra-ui/react'
+import { Text, Box, Flex, Spacer, Input, Button, HStack, useNumberInput, Center, SimpleGrid, Container } from '@chakra-ui/react'
 import Cell from './cell.component'
 import useDeviceSize from '@/hooks/use_device_size.hook';
+import PlayersRankingBox from './players_ranking_box.component';
 
 export default function GameRoomPage() {
   const [width, height] = useDeviceSize();
 
   const dimensions: {cols: number; rows: number} = {
-    cols: 50,
-    rows: 25
+    cols: 10,
+    rows: 10
   };
 
   function getCells(){
@@ -41,6 +42,7 @@ export default function GameRoomPage() {
 
   return (
     <Box width="100%" height="100vh">
+      <PlayersRankingBox></PlayersRankingBox>
       <Center height={"100%"}>
         <SimpleGrid columns={dimensions.cols} gap={getCellGap()}>
           {
@@ -49,6 +51,11 @@ export default function GameRoomPage() {
         </SimpleGrid>
       </Center>
       <Box />
+      <Box position={"fixed"} bottom={2} right={2} color={"gray"} fontWeight={"bold"}>
+        {
+          "1h 20mn 18s"
+        }
+      </Box>
     </Box>
   )
 }
