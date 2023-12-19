@@ -4,10 +4,11 @@ import { useState } from 'react';
 import styles from './page.module.css'
 import { Text, Box, Flex, Spacer, Input, Button, HStack, useNumberInput, Center } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
+import { PlayerColorName, PlayerColors } from './values/colors';
 
 type UserPreferences = {
   name: string | null,
-  color: string | null
+  color: PlayerColorName
 };
 
 export default function Home() {
@@ -20,7 +21,7 @@ export default function Home() {
   });
   const [preferences, setPreferences] = useState<UserPreferences>({
     name: null,
-    color: null
+    color: "BLUE"
   });
 
 
@@ -29,7 +30,7 @@ export default function Home() {
       <Flex flexDirection={"row"} justifyContent={"space-between"} height={"15%"} paddingTop={5} paddingRight={5} paddingLeft={5}>
         <Text pb={"20px"} textAlign={"center"} fontSize={"larger"} fontWeight={"bold"}>Mines</Text>
         <Text pb={"20px"} textAlign={"center"}>
-          <Button rightIcon={<EditIcon />} variant='outline' fontSize={"15"} fontWeight={"regular"}>
+          <Button rightIcon={<EditIcon />} variant='outline' fontSize={"15"} fontWeight={"regular"} color={PlayerColors[preferences.color]}>
             {preferences.name? preferences.name : "NoName"}
           </Button>
         </Text>
