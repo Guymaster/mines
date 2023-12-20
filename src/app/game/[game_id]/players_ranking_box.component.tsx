@@ -2,23 +2,20 @@
 
 import { Card, Container, Box, Text, Center } from '@chakra-ui/react'
 import Player from '../models/player.model';
+import { PlayerColorName, getColorHex } from '@/app/values/colors';
 
-export default function PlayersRankingBox(props: {}) {
-  let players: Player[] = [
-    new Player("Player 1", 0, "#502545", null),
-    new Player("Player 2", 254, "#502545", null),
-  ];
+export default function PlayersRankingBox(props: {
+  players: Map<string, Player>,
+  ranking: Array<string>
+}) {
   return (
     <Container position={"fixed"} top={0} left={0} marginTop={2}>
       {
-        players.map((player) => {
+        props.ranking.map((id) => {
           return (
             <Box display={"flex"}>
-              <Center>
-                  <Box height={3} width={3} borderRadius={"100%"} backgroundColor={player.color}></Box>
-                </Center>
-              <Text marginLeft={2} marginRight={3}>{player.name}</Text>
-              <Text fontWeight={"bold"}>{player.score}</Text>
+              <Text marginLeft={0} marginRight={3} color={getColorHex(props.players.get(id)!.color as PlayerColorName)} opacity={0.7}>{props.players.get(id)!.name}</Text>
+              <Text color={"gray"}>{props.players.get(id)!.score}</Text>
             </Box>
           );
         })
