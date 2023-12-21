@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { AppChakraProvider } from '@/providers/chakra.provider'
 import { ColorModeScript } from '@chakra-ui/react'
-import { theme } from './values/theme'
+import { theme } from '../values/theme'
 import { GameRoomProvider } from '@/providers/game_room.provider'
 
 

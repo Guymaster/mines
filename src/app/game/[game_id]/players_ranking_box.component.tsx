@@ -1,8 +1,8 @@
 'use client'
 
 import { Card, Container, Box, Text, Center } from '@chakra-ui/react'
-import Player from '../models/player.model';
-import { PlayerColorName, getColorHex } from '@/app/values/colors';
+import Player from '../../../models/player.model';
+import { PlayerColorName, getColorHex } from '@/values/colors';
 
 export default function PlayersRankingBox(props: {
   players: Map<string, Player>,

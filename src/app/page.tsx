@@ -1,13 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import styles from './page.module.css'
 import { Text, Box, Flex, Spacer, Input, Button, HStack, useNumberInput, Center, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, useDisclosure, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Select, Stack, InputGroup, InputLeftAddon, InputRightAddon, Checkbox, Badge, useToast } from '@chakra-ui/react';
 import { ArrowForwardIcon, EditIcon } from '@chakra-ui/icons';
-import { PlayerColorName, getColorHex } from './values/colors';
+import { PlayerColorName, getColorHex } from '@/values/colors';
 import React from 'react';
 import { CookieFieldName, CookieStorage } from '@/storage/local.storage';
-import { GameDifficulties, GameTypes } from './values/game';
+import { GameDifficulties, GameTypes } from '@/values/game';
 import GameServerConfig from '@/configs/game_server.config';
 import { Client } from 'colyseus.js';
 import { useGameRoomContext } from '@/providers/game_room.provider';

@@ -4,13 +4,17 @@ import { Text, Box, Flex, Spacer, Input, Button, HStack, useNumberInput, Center,
 import Cell from './cell.component'
 import useDeviceSize from '@/hooks/use_device_size.hook';
 import PlayersRankingBox from './players_ranking_box.component';
-import Player from '../models/player.model';
+import Player from '@/models/player.model';
 import { useState } from 'react';
-import { PlayerColorName } from '@/app/values/colors';
+import { PlayerColorName } from '@/values/colors';
 import { SettingsIcon } from '@chakra-ui/icons';
+import { useGameRoomContext } from '@/providers/game_room.provider';
+import { Client } from 'colyseus.js';
+import GameServerConfig from '@/configs/game_server.config';
 
 export default function GameRoomPage() {
   const [width, height] = useDeviceSize();
+  const gameClient = new Client(`ws://${GameServerConfig.url}`);
   const exPlayerMap = new Map<string, Player>();
   exPlayerMap.set("1", new Player("1", "Player 1", 0, PlayerColorName.BLUE, 0, 0, true))
   exPlayerMap.set("2", new Player("2", "Player 254545554545", 254, PlayerColorName.GREEN, 0, 0, true))
@@ -18,6 +22,8 @@ export default function GameRoomPage() {
   //const [players, setPlayers] = useState<Map<string, Player>>(new Map<string, Player>());
   const [players, setPlayers] = useState<Map<string, Player>>(exPlayerMap);
   const [ranking, setRanking] = useState<Array<string>>(["1", "2", "3"]);
+
+  const {gameRoom, setGameRoom} = useGameRoomContext();
 
   const dimensions: {cols: number; rows: number} = {
     cols: 25,
@@ -65,14 +71,24 @@ export default function GameRoomPage() {
       {/* Fixed position */}
       <PlayersRankingBox players={players} ranking={ranking} />
       <Box position={"fixed"} top={2} right={2}>
-        <Button marginRight={2} variant='outline'
+        <Button marginRight={1} variant='outline'
           aria-label='Game Settings'
           fontSize='medium'
+          color={"gray"}
+          _hover={{
+            color: "white",
+            transition: "0.3s"
+          }}
           border={"none"}>IIIOOJOJ</Button>
         <IconButton
           variant='outline'
           aria-label='Game Settings'
           fontSize='medium'
+          color={"gray"}
+          _hover={{
+            color: "white",
+            transition: "0.3s"
+          }}
           border={"none"}
           icon={<SettingsIcon />}
         />

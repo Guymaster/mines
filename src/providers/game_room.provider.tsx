@@ -2,11 +2,12 @@
 
 import { createContext, useState, useContext } from "react";
 import { Room } from 'colyseus.js';
+import { GameRoomState } from "@/models/game_room.model";
 
-const GameRoomContext = createContext<{gameRoom: Room | null, setGameRoom: Function}>({ gameRoom: null, setGameRoom: ()=>{}});
+const GameRoomContext = createContext<{gameRoom: Room<GameRoomState> | null, setGameRoom: Function}>({ gameRoom: null, setGameRoom: ()=>{}});
 
 export function GameRoomProvider({ children }: { children: React.ReactNode }) {
-    const [gameRoom, setGameRoom] = useState<null | Room>(null);
+    const [gameRoom, setGameRoom] = useState<null | Room<GameRoomState>>(null);
     return (
         <GameRoomContext.Provider value={{ gameRoom, setGameRoom }}>
             {children}

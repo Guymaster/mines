@@ -2,7 +2,7 @@
 
 import { ChakraProvider } from '@chakra-ui/react'
 import { extendTheme } from '@chakra-ui/react'
-import { theme } from '@/app/values/theme'
+import { theme } from '@/values/theme'
 
 export function AppChakraProvider({ children }: { children: React.ReactNode }) {
   return (
