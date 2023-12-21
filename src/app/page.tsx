@@ -112,10 +112,14 @@ export default function Home() {
     });
   }, []);
   useEffect(() => {
-    if(gameRoom){
-      CookieStorage.setReconnectToken(gameRoom.reconnectionToken);
-      router.push(`/game/${gameRoom.id}`);
+    if(!gameRoom){
+      return;
     }
+    if(!gameRoom.connection.isOpen){
+      return;
+    }
+    CookieStorage.setReconnectToken(gameRoom.reconnectionToken);
+    router.push(`/game/${gameRoom.id}`);
   }, [gameRoom]);
 
   return (
