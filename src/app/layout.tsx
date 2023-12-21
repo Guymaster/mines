@@ -4,6 +4,7 @@ import './globals.css'
 import { AppChakraProvider } from '@/providers/chakra.provider'
 import { ColorModeScript } from '@chakra-ui/react'
 import { theme } from './values/theme'
+import { GameRoomProvider } from '@/providers/game_room.provider'
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -23,7 +24,9 @@ export default function RootLayout({
       <body className={inter.className}>
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <AppChakraProvider>
-          {children}
+          <GameRoomProvider>
+            {children}
+          </GameRoomProvider>
         </AppChakraProvider>
       </body>
     </html>

@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import styles from './page.module.css'
-import { Text, Box, Flex, Spacer, Input, Button, HStack, useNumberInput, Center, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, useDisclosure, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Select, Stack, InputGroup, InputLeftAddon, InputRightAddon, Checkbox, Badge } from '@chakra-ui/react';
+import { Text, Box, Flex, Spacer, Input, Button, HStack, useNumberInput, Center, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, useDisclosure, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Select, Stack, InputGroup, InputLeftAddon, InputRightAddon, Checkbox, Badge, useToast } from '@chakra-ui/react';
 import { ArrowForwardIcon, EditIcon } from '@chakra-ui/icons';
 import { PlayerColorName, getColorHex } from './values/colors';
 import React from 'react';
 import { CookieFieldName, CookieStorage } from '@/storage/local.storage';
-import { GameDifficulties } from './values/game';
+import { GameDifficulties, GameTypes } from './values/game';
+import GameServerConfig from '@/configs/game_server.config';
+import { Client } from 'colyseus.js';
+import { useGameRoomContext } from '@/providers/game_room.provider';
+import { useRouter } from 'next/navigation';
 
 type UserPreferences = {
   name: string | null,
@@ -22,20 +26,45 @@ export default function Home() {
     max: 50,
     precision: 0,
   });
+  const gameClient = new Client(`ws://${GameServerConfig.url}`);
   const [preferences, setPreferences] = useState<UserPreferences>({
     name: null,
     color: PlayerColorName.BLUE
   });
   const [searchGameId, setSearchGameId] = useState<string>("");
+  const {gameRoom, setGameRoom} = useGameRoomContext();
+  const [isGameCreationLoading, setIsGameCreationLoading] = useState<boolean>(false);
+  const [isGameJoinLoading, setIsGameJoinLoading] = useState<boolean>(false);
 
   const prefEdit = useDisclosure();
   const gameCreate = useDisclosure();
+  const toast = useToast();
+  const router = useRouter();
 
-  const handleJoinGame = (e: any) => {
+  const handleJoinGame = async (e: any) => {
     if(e.type == "keydown" && e.key != "Enter"){
       return;
     }
-    //
+    if(searchGameId == ""){
+      return;
+    }
+    setIsGameJoinLoading(true);
+    try {
+      const options = {
+        name: preferences.name,
+        color: preferences.color
+      };
+      let room = await gameClient.joinById(searchGameId, options);
+      setGameRoom(room);
+    } catch (error) {
+      toast({
+        title: 'Failed to join this room.',
+        status: "error",
+        duration: 3000,
+      });
+    } finally {
+      setIsGameJoinLoading(false);
+    }
   };
   const handleEditPreferences = (e: any) => {
     e.preventDefault();
@@ -50,9 +79,27 @@ export default function Home() {
     CookieStorage.setPreference(CookieFieldName.PREF_COLOR, color);
     prefEdit.onClose();
   };
-  const handleCreateNewGame = (e: any) => {
+  const handleCreateNewGame = async (e: any) => {
     e.preventDefault();
     const data = new FormData(e.target);
+    setIsGameCreationLoading(true);
+    try {
+      const options = {
+        cols: parseInt(data.get("cols")!.toString()),
+        rows: parseInt(data.get("rows")!.toString()),
+        difficulty: data.get("difficulty")!.toString()
+      };
+      let room = await gameClient.create(GameTypes.CLASSIC, options);
+      setGameRoom(room);
+    } catch (error) {
+      toast({
+        title: 'Creation failed. Please retry.',
+        status: "error",
+        duration: 3000,
+      });
+    } finally {
+      setIsGameCreationLoading(false);
+    }
   };
   const onSearchGameIdChange = (e: any) => {
     setSearchGameId(e.target.value);
@@ -64,6 +111,12 @@ export default function Home() {
       color: CookieStorage.getPreference(CookieFieldName.PREF_COLOR)? CookieStorage.getPreference(CookieFieldName.PREF_COLOR)! as PlayerColorName : PlayerColorName.BLUE
     });
   }, []);
+  useEffect(() => {
+    if(gameRoom){
+      CookieStorage.setReconnectToken(gameRoom.reconnectionToken);
+      router.push(`/game/${gameRoom.id}`);
+    }
+  }, [gameRoom]);
 
   return (
     <>
@@ -79,7 +132,7 @@ export default function Home() {
         <Flex flexDirection={"column"} justifyContent={"center"} height={"50%"}>
           <Flex flexDirection={"row"} justifyContent={"center"}>
             <Input maxWidth={{base: "70%", lg: 500}} borderRadius={0} borderLeftRadius={20} _focus={{ boxShadow: "none", outline: "none" }} placeholder='Enter a game ID' fontWeight={"bold"} fontSize={{base: "medium", lg: "large"}} onKeyDown={handleJoinGame} padding={{base: 3, lg: 7}} onChange={onSearchGameIdChange} />
-            <Button borderRadius={0} borderRightRadius={20} maxWidth={{base: "15%", lg: 70}} colorScheme='blue' padding={{base: 3, lg: 7}} onClick={handleJoinGame}>Join</Button>
+            <Button borderRadius={0} borderRightRadius={20} maxWidth={{base: "15%", lg: 70}} colorScheme='blue' padding={{base: 3, lg: 7}} isLoading={isGameJoinLoading} onClick={handleJoinGame}>Join</Button>
           </Flex>
         </Flex>
         <Center height={"35%"}>
@@ -160,7 +213,7 @@ export default function Home() {
                 </DrawerBody>
               </Box>
               <DrawerFooter>
-                <Button colorScheme='blue' type='submit' rightIcon={<ArrowForwardIcon />}>Go</Button>
+                <Button colorScheme='blue' type='submit' isLoading={isGameCreationLoading} rightIcon={<ArrowForwardIcon />}>Go</Button>
               </DrawerFooter>
             </Flex>
           </form>

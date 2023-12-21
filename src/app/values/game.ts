@@ -4,6 +4,10 @@ export const GameSteps = {
     ENDED: "ENDED"
 };
 
+export const GameTypes = {
+    CLASSIC: "CLASSIC",
+};
+
 export const GameDifficulties = {
     BEGINNER: "BEGINNER",
     INTERMEDIARY: "INTERMEDIARY",
