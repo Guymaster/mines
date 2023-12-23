@@ -86,7 +86,9 @@ export default function Home() {
       const options = {
         cols: parseInt(data.get("cols")!.toString()),
         rows: parseInt(data.get("rows")!.toString()),
-        difficulty: data.get("difficulty")!.toString()
+        difficulty: data.get("difficulty")!.toString(),
+        name: preferences.name,
+        color: preferences.color
       };
       let room = await gameClient.create(GameTypes.CLASSIC, options);
       setGameRoom(room);

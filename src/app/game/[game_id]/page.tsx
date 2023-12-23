@@ -5,30 +5,38 @@ import Cell from './cell.component'
 import useDeviceSize from '@/hooks/use_device_size.hook';
 import PlayersRankingBox from './players_ranking_box.component';
 import Player from '@/models/player.model';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PlayerColorName } from '@/values/colors';
 import { SettingsIcon } from '@chakra-ui/icons';
 import { useGameRoomContext } from '@/providers/game_room.provider';
 import { Client } from 'colyseus.js';
 import GameServerConfig from '@/configs/game_server.config';
+import { CookieStorage, CookieFieldName } from '@/storage/local.storage';
+import { useParams, useRouter } from 'next/navigation';
+import { CellContent } from '@/models/cell_content.model';
+import { GameSteps, ServerMessagesTypes } from '@/values/game';
 
 export default function GameRoomPage() {
-  const [width, height] = useDeviceSize();
   const gameClient = new Client(`ws://${GameServerConfig.url}`);
-  const exPlayerMap = new Map<string, Player>();
-  exPlayerMap.set("1", new Player("1", "Player 1", 0, PlayerColorName.BLUE, 0, 0, true))
-  exPlayerMap.set("2", new Player("2", "Player 254545554545", 254, PlayerColorName.GREEN, 0, 0, true))
-  exPlayerMap.set("3", new Player("3", "Player 1", 0, PlayerColorName.RED, 0, 0, true))
-  //const [players, setPlayers] = useState<Map<string, Player>>(new Map<string, Player>());
-  const [players, setPlayers] = useState<Map<string, Player>>(exPlayerMap);
-  const [ranking, setRanking] = useState<Array<string>>(["1", "2", "3"]);
+  // const exPlayerMap = new Map<string, Player>();
+  // exPlayerMap.set("1", new Player("1", "Player 1", 0, PlayerColorName.BLUE, 0, 0, true))
+  // exPlayerMap.set("2", new Player("2", "Player 254545554545", 254, PlayerColorName.GREEN, 0, 0, true))
+  // exPlayerMap.set("3", new Player("3", "Player 1", 0, PlayerColorName.RED, 0, 0, true))
+  const [players, setPlayers] = useState<Map<string, Player>>(new Map<string, Player>());
+  // const [players, setPlayers] = useState<Map<string, Player>>(exPlayerMap);
+  const [ranking, setRanking] = useState<Array<string>>([]);
+  const [dimensions, setDimensions] = useState<{cols: number; rows: number}>({
+    cols: 0,
+    rows: 0
+  });
+  const [revealedContents, setRevealedContents] = useState<Map<string, CellContent>>(new Map<string, CellContent>());
+  const [count, setCount] = useState<number>(0);
+  const [gameStep, setGameStep] = useState<string>(GameSteps.WAITING);
 
+  const router = useRouter();
   const {gameRoom, setGameRoom} = useGameRoomContext();
-
-  const dimensions: {cols: number; rows: number} = {
-    cols: 25,
-    rows: 25
-  };
+  const params = useParams<{ game_id: string}>();
+  const [width, height] = useDeviceSize();
 
   function getCells(){
     let cells = [];
@@ -56,6 +64,47 @@ export default function GameRoomPage() {
       return 1;
     }
   }
+
+  useEffect(() => {
+    if(gameRoom){
+      if(gameRoom.connection.isOpen){
+        if(gameRoom.id == params.game_id){
+          return;
+        }
+        router.push(`/game/${gameRoom.id}`);
+        return;
+      }
+    }
+    gameClient.joinById(params.game_id)
+    .catch(e => {
+      throw new Error();
+    })
+    .then(room => {
+      setGameRoom(room);
+    });
+  }, []);
+  useEffect(() => {
+    if(!gameRoom){
+      return;
+    }
+    setDimensions({
+      cols: gameRoom.state.cols,
+      rows: gameRoom.state.rows
+    });
+    setPlayers(gameRoom.state.players);
+    setRanking(Array.from(gameRoom.state.players.values()).sort((p1, p2) => p1.score - p2.score).map(p => p.id));
+    setGameStep(gameRoom.state.step);
+    setCount(gameRoom.state.count);
+    setRevealedContents(gameRoom.state.revealedContents);
+    //TODO Listen to room events
+    gameRoom.onStateChange(state => {
+      setPlayers(state.players);
+      setRanking(Array.from(state.players.values()).sort((p1, p2) => p1.score - p2.score).map(p => p.id));
+      setGameStep(state.step);
+      setCount(state.count);
+      setRevealedContents(state.revealedContents);
+    });
+  }, [gameRoom]);
 
   return (
     <Box width="100%" height="100vh">
@@ -95,7 +144,7 @@ export default function GameRoomPage() {
       </Box>
       <Box position={"fixed"} bottom={2} right={2} color={"gray"} fontSize={"small"}>
         {
-          "1h 20mn 18s"
+          "01:20:18"
         }
       </Box>
     </Box>

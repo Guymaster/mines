@@ -6,4 +6,7 @@ export class GameRoomState {
     players: Map<string, Player> = new Map<string, Player>();
     revealedContents = new Map<string, CellContent>();
     step: string = GameSteps.WAITING;
+    cols: number = 0;
+    rows: number = 0;
+    count: number = 0;
 }
