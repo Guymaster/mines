@@ -5,7 +5,7 @@ import { Text, Box, Flex, Spacer, Input, Button, HStack, useNumberInput, Center,
 import { ArrowForwardIcon, EditIcon } from '@chakra-ui/icons';
 import { PlayerColorName, getColorHex } from '@/values/colors';
 import React from 'react';
-import { CookieFieldName, CookieStorage } from '@/storage/local.storage';
+import { LocalStorage, LocalStorageFieldName } from '@/storage/local.storage';
 import { GameDifficulties, GameTypes } from '@/values/game';
 import GameServerConfig from '@/configs/game_server.config';
 import { Client } from 'colyseus.js';
@@ -74,8 +74,8 @@ export default function Home() {
       name,
       color
     });
-    CookieStorage.setPreference(CookieFieldName.PREF_NAME, name);
-    CookieStorage.setPreference(CookieFieldName.PREF_COLOR, color);
+    LocalStorage.setPreference(LocalStorageFieldName.PREF_NAME, name);
+    LocalStorage.setPreference(LocalStorageFieldName.PREF_COLOR, color);
     prefEdit.onClose();
   };
   const handleCreateNewGame = async (e: any) => {
@@ -108,8 +108,8 @@ export default function Home() {
 
   useEffect(() => {
     setPreferences({
-      name: CookieStorage.getPreference(CookieFieldName.PREF_NAME),
-      color: CookieStorage.getPreference(CookieFieldName.PREF_COLOR)? CookieStorage.getPreference(CookieFieldName.PREF_COLOR)! as PlayerColorName : PlayerColorName.BLUE
+      name: LocalStorage.getPreference(LocalStorageFieldName.PREF_NAME),
+      color: LocalStorage.getPreference(LocalStorageFieldName.PREF_COLOR)? LocalStorage.getPreference(LocalStorageFieldName.PREF_COLOR)! as PlayerColorName : PlayerColorName.BLUE
     });
   }, []);
   useEffect(() => {
@@ -119,7 +119,7 @@ export default function Home() {
     if(!gameRoom.connection.isOpen){
       return;
     }
-    CookieStorage.setReconnectToken(gameRoom.reconnectionToken);
+    LocalStorage.setReconnectToken(gameRoom.reconnectionToken);
     router.push(`/game/${gameRoom.id}`);
   }, [gameRoom]);
 

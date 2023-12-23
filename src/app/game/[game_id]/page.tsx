@@ -11,7 +11,7 @@ import { SettingsIcon } from '@chakra-ui/icons';
 import { useGameRoomContext } from '@/providers/game_room.provider';
 import { Client } from 'colyseus.js';
 import GameServerConfig from '@/configs/game_server.config';
-import { CookieStorage, CookieFieldName } from '@/storage/local.storage';
+import { LocalStorage, LocalStorageFieldName } from '@/storage/local.storage';
 import { useParams, useRouter } from 'next/navigation';
 import { CellContent } from '@/models/cell_content.model';
 import { GameSteps, ServerMessagesTypes } from '@/values/game';
