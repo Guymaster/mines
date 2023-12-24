@@ -15,6 +15,7 @@ import { LocalStorage, LocalStorageFieldName } from '@/storage/local.storage';
 import { useParams, useRouter } from 'next/navigation';
 import { CellContent } from '@/models/cell_content.model';
 import { GameSteps, ServerMessagesTypes } from '@/values/game';
+import { CellModel } from '@/models/cell.model';
 
 export default function GameRoomPage() {
   const gameClient = new Client(`ws://${GameServerConfig.url}`);
@@ -32,6 +33,7 @@ export default function GameRoomPage() {
   const [revealedContents, setRevealedContents] = useState<Map<string, CellContent>>(new Map<string, CellContent>());
   const [count, setCount] = useState<number>(0);
   const [gameStep, setGameStep] = useState<string>(GameSteps.WAITING);
+  const [cells, setCells] = useState<Array<Array<CellModel>>>([[]]);
 
   const router = useRouter();
   const {gameRoom, setGameRoom} = useGameRoomContext();
@@ -102,9 +104,51 @@ export default function GameRoomPage() {
       setRanking(Array.from(state.players.values()).sort((p1, p2) => p1.score - p2.score).map(p => p.id));
       setGameStep(state.step);
       setCount(state.count);
-      setRevealedContents(state.revealedContents);
+    });
+    gameRoom.onMessage(ServerMessagesTypes.NUMBER_REVEALED, (message: {
+      row: number,
+      col: number,
+      number: number,
+      playerId: string
+    }) => {
+      let clls = cells;
+      clls[message.row][message.col].content = new CellContent(false, message.number);
+      setCells(clls);
+    });
+    gameRoom.onMessage(ServerMessagesTypes.BOMB_REVEALED, (message: {
+      row: number,
+      col: number,
+      playerId: string
+    }) => {
+      let clls = cells;
+      clls[message.row][message.col].content = new CellContent(true, 0);
+      setCells(clls);
+    });
+    gameRoom.onMessage(ServerMessagesTypes.BOMB_REVEALED, (message: {
+      //
+    }) => {
+      alert("END")
     });
   }, [gameRoom]);
+  //Linked gameplay events
+  useEffect(() => {
+    let clls = [];
+    for(let i=0; i++; i<dimensions.rows){
+      let r = [];
+      for(let j=0; j++; j<dimensions.cols){
+        r.push(new CellModel(i, j, null))
+      }
+      clls.push(r);
+    }
+    setCells(clls);
+  }, [dimensions]);
+  useEffect(() => {
+    Array.from(revealedContents.keys()).forEach(k => {
+      let clls = cells;
+      clls[parseInt(k.split(":")[0])][parseInt(k.split(":")[1])].content = revealedContents.get(k)? revealedContents.get(k)! : null;
+      setCells(clls);
+    });
+  }, [revealedContents]);
 
   return (
     <Box width="100%" height="100vh">
