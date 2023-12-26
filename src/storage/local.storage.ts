@@ -1,8 +1,3 @@
-import Cookies from 'universal-cookie';
-const cookies = new Cookies();
-cookies.set('myCat', 'Pacman', { path: '/' });
-console.log(cookies.get('myCat')); // Pacman
-
 export enum LocalStorageFieldName {
     PREF_NAME = "PREF_NAME",
     PREF_COLOR = "PREF_COLOR",

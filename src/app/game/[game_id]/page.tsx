@@ -19,12 +19,7 @@ import { CellModel } from '@/models/cell.model';
 
 export default function GameRoomPage() {
   const gameClient = new Client(`ws://${GameServerConfig.url}`);
-  // const exPlayerMap = new Map<string, Player>();
-  // exPlayerMap.set("1", new Player("1", "Player 1", 0, PlayerColorName.BLUE, 0, 0, true))
-  // exPlayerMap.set("2", new Player("2", "Player 254545554545", 254, PlayerColorName.GREEN, 0, 0, true))
-  // exPlayerMap.set("3", new Player("3", "Player 1", 0, PlayerColorName.RED, 0, 0, true))
   const [players, setPlayers] = useState<Map<string, Player>>(new Map<string, Player>());
-  // const [players, setPlayers] = useState<Map<string, Player>>(exPlayerMap);
   const [ranking, setRanking] = useState<Array<string>>([]);
   const [dimensions, setDimensions] = useState<{cols: number; rows: number}>({
     cols: 0,
@@ -40,12 +35,13 @@ export default function GameRoomPage() {
   const params = useParams<{ game_id: string}>();
   const [width, height] = useDeviceSize();
 
-  function getCells(){
-    let cells = [];
-    for(let i=0; i<dimensions.cols*dimensions.rows; i++){
-      cells.push(<Cell key={i} size={getCellSize()} />);
+  function getCellsData(){
+    let array: CellModel[] = [];
+    for(let i = 0; i < cells.length; i++)
+    {
+        array = array.concat(cells[i]);
     }
-    return cells;
+    return array;
   }
 
   function getCellSize(): number {
@@ -133,10 +129,10 @@ export default function GameRoomPage() {
   //Linked gameplay events
   useEffect(() => {
     let clls = [];
-    for(let i=0; i++; i<dimensions.rows){
+    for(let i=0; i<dimensions.rows; i++){
       let r = [];
-      for(let j=0; j++; j<dimensions.cols){
-        r.push(new CellModel(i, j, null))
+      for(let j=0; j<dimensions.cols; j++){
+        r.push(new CellModel(i, j, null));
       }
       clls.push(r);
     }
@@ -155,7 +151,9 @@ export default function GameRoomPage() {
       <Center height={"100%"}>
         <SimpleGrid columns={dimensions.cols} gap={getCellGap()}>
           {
-           getCells()
+           getCellsData().map(d => (
+            <Cell size={getCellSize()} data={d} key={`${d.row}:${d.col}`} />
+           ))
           }
         </SimpleGrid>
       </Center>
