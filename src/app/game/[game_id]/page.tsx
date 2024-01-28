@@ -29,6 +29,12 @@ export default function GameRoomPage() {
   const [count, setCount] = useState<number>(0);
   const [gameStep, setGameStep] = useState<string>(GameSteps.WAITING);
   const [cells, setCells] = useState<Array<Array<CellModel>>>([[]]);
+  const [cellsData, setCellsData] = useState<Array<CellModel>>([]);
+  const [lastRevealed, setLastRevealed] = useState<{
+    row: number;
+    col: number;
+    content: CellContent
+  } | null>(null);
 
   const router = useRouter();
   const {gameRoom, setGameRoom} = useGameRoomContext();
@@ -107,23 +113,23 @@ export default function GameRoomPage() {
       number: number,
       playerId: string
     }) => {
-      let clls = cells;
-      clls[message.row][message.col].content = new CellContent(false, message.number);
-      setCells(clls);
+      setLastRevealed({
+        row: message.row,
+        col: message.col,
+        content: new CellContent(false, message.number)
+      });
     });
     gameRoom.onMessage(ServerMessagesTypes.BOMB_REVEALED, (message: {
       row: number,
       col: number,
       playerId: string
     }) => {
-      let clls = cells;
-      clls[message.row][message.col].content = new CellContent(true, 0);
-      setCells(clls);
-    });
-    gameRoom.onMessage(ServerMessagesTypes.BOMB_REVEALED, (message: {
-      //
-    }) => {
-      alert("END")
+      setLastRevealed({
+        row: message.row,
+        col: message.col,
+        content: CellContent.bomb()
+      });
+      alert("END");
     });
   }, [gameRoom]);
   //Linked gameplay events
@@ -136,7 +142,7 @@ export default function GameRoomPage() {
       }
       clls.push(r);
     }
-    setCells(clls);
+    setCells([...clls]);
   }, [dimensions]);
   useEffect(() => {
     Array.from(revealedContents.keys()).forEach(k => {
@@ -144,14 +150,28 @@ export default function GameRoomPage() {
       clls[parseInt(k.split(":")[0])][parseInt(k.split(":")[1])].content = revealedContents.get(k)? revealedContents.get(k)! : null;
       setCells(clls);
     });
-  }, [revealedContents]);
+    let _cellsData: CellModel[] = [];
+    for(let i = 0; i < cells.length; i++)
+    {
+        _cellsData = _cellsData.concat(cells[i]);
+    }
+    setCellsData(_cellsData);
+  }, [revealedContents, cells]);
+  useEffect(() => {
+  }, [cellsData]);
+  useEffect(() => {
+    if(!lastRevealed || !lastRevealed.row || !lastRevealed.col){
+      return;
+    }
+    cells[lastRevealed.row][lastRevealed.col].content = lastRevealed!.content;
+  }, [lastRevealed]);
 
   return (
     <Box width="100%" height="100vh">
       <Center height={"100%"}>
         <SimpleGrid columns={dimensions.cols} gap={getCellGap()}>
           {
-           getCellsData().map(d => (
+           cellsData.map(d => (
             <Cell size={getCellSize()} data={d} key={`${d.row}:${d.col}`} />
            ))
           }

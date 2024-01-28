@@ -13,7 +13,7 @@ export default function Cell(props: {size: number, data: CellModel}) {
     if(!gameRoom){
       return;
     }
-    gameRoom.send(ClientMessagesTypes.CURSOR_POSITION, {
+    gameRoom.send(ClientMessagesTypes.CHOOSE_CELL, {
       col: props.data.col,
       row: props.data.row
     })
