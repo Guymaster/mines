@@ -16,6 +16,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { CellContent } from '@/models/cell_content.model';
 import { GameSteps, ServerMessagesTypes } from '@/values/game';
 import { CellModel } from '@/models/cell.model';
+import { secondsToHHMMSS } from '@/utils/time';
 
 export default function GameRoomPage() {
   const gameClient = new Client(`ws://${GameServerConfig.url}`);
@@ -206,7 +207,7 @@ export default function GameRoomPage() {
       </Box>
       <Box position={"fixed"} bottom={2} right={2} color={"gray"} fontSize={"small"}>
         {
-          "01:20:18"
+          secondsToHHMMSS(count)
         }
       </Box>
     </Box>
