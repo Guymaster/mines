@@ -1,6 +1,6 @@
 'use client'
 
-import { Text, Box, Flex, Spacer, Input, Button, HStack, useNumberInput, Center, SimpleGrid, Container, Card, CardBody, IconButton } from '@chakra-ui/react'
+import { Text, Box, Flex, Spacer, Input, Button, HStack, useNumberInput, Center, SimpleGrid, Container, Card, CardBody, IconButton, useToast } from '@chakra-ui/react'
 import Cell from './cell.component'
 import useDeviceSize from '@/hooks/use_device_size.hook';
 import PlayersRankingBox from './players_ranking_box.component';
@@ -41,14 +41,14 @@ export default function GameRoomPage() {
   const {gameRoom, setGameRoom} = useGameRoomContext();
   const params = useParams<{ game_id: string}>();
   const [width, height] = useDeviceSize();
+  const toast = useToast();
 
-  function getCellsData(){
-    let array: CellModel[] = [];
-    for(let i = 0; i < cells.length; i++)
-    {
-        array = array.concat(cells[i]);
-    }
-    return array;
+  function copyRoomIdToClipboard(){
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Game link copied to clipboard.",
+      duration: 3000
+    });
   }
 
   function getCellSize(): number {
@@ -191,7 +191,9 @@ export default function GameRoomPage() {
             color: "white",
             transition: "0.3s"
           }}
-          border={"none"}>IIIOOJOJ</Button>
+          border={"none"}
+          onClick={copyRoomIdToClipboard}
+        >{ gameRoom?.roomId }</Button>
         <IconButton
           variant='outline'
           aria-label='Game Settings'
