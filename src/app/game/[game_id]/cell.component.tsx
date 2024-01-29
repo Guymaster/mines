@@ -5,7 +5,7 @@ import { useGameRoomContext } from '@/providers/game_room.provider';
 import { ClientMessagesTypes } from '@/values/game';
 import { Card } from '@chakra-ui/react'
 
-export default function Cell(props: {size: number, data: CellModel}) {
+export default function Cell(props: {size: number, data: CellModel, playerColorHex: string}) {
   const {gameRoom, setGameRoom} = useGameRoomContext();
 
   const handleClick = (event: any) => {
@@ -19,7 +19,7 @@ export default function Cell(props: {size: number, data: CellModel}) {
     })
   };
   return (
-    <Card width={props.size} height={props.size} backgroundColor={"gray"} _hover={{backgroundColor: "green"}} borderRadius={0} onClick={handleClick}>
+    <Card width={props.size} height={props.size} backgroundColor={"gray"} _hover={{backgroundColor: props.playerColorHex}} borderRadius={0} onClick={handleClick}>
       {
         (() => {
           if(!props.data.content){

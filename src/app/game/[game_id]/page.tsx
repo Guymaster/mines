@@ -6,7 +6,7 @@ import useDeviceSize from '@/hooks/use_device_size.hook';
 import PlayersRankingBox from './players_ranking_box.component';
 import Player from '@/models/player.model';
 import { useEffect, useState } from 'react';
-import { PlayerColorName } from '@/values/colors';
+import { PlayerColorName, getColorHex } from '@/values/colors';
 import { SettingsIcon } from '@chakra-ui/icons';
 import { useGameRoomContext } from '@/providers/game_room.provider';
 import { Client } from 'colyseus.js';
@@ -173,7 +173,7 @@ export default function GameRoomPage() {
         <SimpleGrid columns={dimensions.cols} gap={getCellGap()}>
           {
            cellsData.map(d => (
-            <Cell size={getCellSize()} data={d} key={`${d.row}:${d.col}`} />
+            <Cell size={getCellSize()} data={d} key={`${d.row}:${d.col}`} playerColorHex={getColorHex(players.get(gameRoom!.sessionId)!.color as PlayerColorName)} />
            ))
           }
         </SimpleGrid>
