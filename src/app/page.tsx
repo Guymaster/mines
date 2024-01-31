@@ -191,11 +191,11 @@ export default function Home() {
                 <DrawerHeader>Create a new Game</DrawerHeader>
                 <DrawerBody>
                   <InputGroup>
-                    <Input placeholder='Rows number' marginBottom={5} name={"rows"} defaultValue={5} type='number' step={5} min={5} max={25} required />
+                    <Input placeholder='Rows number' marginBottom={5} name={"rows"} defaultValue={5} type='number' step={5} min={5} max={50} required />
                     <InputRightAddon children='rows' />
                   </InputGroup>
                   <InputGroup>
-                    <Input placeholder='Cols number' marginBottom={5} name={"cols"} defaultValue={5} type='number' step={5} min={5} max={25} required />
+                    <Input placeholder='Cols number' marginBottom={5} name={"cols"} defaultValue={5} type='number' step={5} min={5} max={50} required />
                     <InputRightAddon children='cols' />
                   </InputGroup>
                   <Select name={"difficulty"} defaultValue={GameDifficulties.INTERMEDIARY} marginBottom={5} required >

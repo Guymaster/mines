@@ -124,13 +124,16 @@ export default function GameRoomPage() {
       row: number,
       col: number,
       playerId: string
-    }) => {
+    }) => {console.log("bomb", message, {
+      row: message.row,
+      col: message.col,
+      content: CellContent.bomb()
+    })
       setLastRevealed({
         row: message.row,
         col: message.col,
-        content: CellContent.bomb()
+        content: new CellContent(true, 0)
       });
-      alert("END");
     });
   }, [gameRoom]);
   //Linked gameplay events
@@ -158,17 +161,17 @@ export default function GameRoomPage() {
     }
     setCellsData(_cellsData);
   }, [revealedContents, cells]);
-  useEffect(() => {
+  useEffect(() => {console.log("cells data", cellsData)
   }, [cellsData]);
   useEffect(() => {
-    if(!lastRevealed || !lastRevealed.row || !lastRevealed.col){
+    if(!lastRevealed || !lastRevealed.content || lastRevealed.col == undefined || lastRevealed.row == undefined){
       return;
     }
     cells[lastRevealed.row][lastRevealed.col].content = lastRevealed!.content;
   }, [lastRevealed]);
 
   return (
-    <Box width="100%" height="100vh">
+    <Box width="100%" height="100vh" userSelect={"none"}>
       <Center height={"100%"}>
         <SimpleGrid columns={dimensions.cols} gap={getCellGap()}>
           {
@@ -178,7 +181,6 @@ export default function GameRoomPage() {
           }
         </SimpleGrid>
       </Center>
-      <Box />
 
       {/* Fixed position */}
       <PlayersRankingBox players={players} ranking={ranking} />

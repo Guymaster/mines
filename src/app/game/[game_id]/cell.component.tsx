@@ -3,7 +3,7 @@
 import { CellModel } from '@/models/cell.model';
 import { useGameRoomContext } from '@/providers/game_room.provider';
 import { ClientMessagesTypes } from '@/values/game';
-import { Card } from '@chakra-ui/react'
+import { Card, Center } from '@chakra-ui/react'
 
 export default function Cell(props: {size: number, data: CellModel, playerColorHex: string}) {
   const {gameRoom, setGameRoom} = useGameRoomContext();
@@ -16,21 +16,23 @@ export default function Cell(props: {size: number, data: CellModel, playerColorH
     gameRoom.send(ClientMessagesTypes.CHOOSE_CELL, {
       col: props.data.col,
       row: props.data.row
-    })
+    });
   };
   return (
-    <Card width={props.size} height={props.size} backgroundColor={"gray"} _hover={{backgroundColor: props.playerColorHex}} borderRadius={0} onClick={handleClick}>
-      {
-        (() => {
-          if(!props.data.content){
-            return "";
-          }
-          if(props.data.content.isBomb){
-            return "B";
-          }
-          return props.data.content.number.toString();
-        })()
-      }
+    <Card width={props.size} height={props.size} backgroundColor={(props.data.content)? "none" : "gray"} _hover={{backgroundColor: props.playerColorHex}} borderRadius={0} onClick={handleClick} display={"flex"} flexDirection={"column"} justifyContent={"center"} cursor={"default"}>
+      <Center fontSize={Math.floor(props.size*0.8)} fontWeight={"bold"}>
+        {
+          (() => {
+            if(!props.data.content){
+              return "";
+            }
+            if(props.data.content.isBomb){
+              return "B";
+            }
+            return props.data.content.number.toString();
+          })()
+        }
+      </Center>
     </Card>
   );
 }
