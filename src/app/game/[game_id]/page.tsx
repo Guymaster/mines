@@ -18,6 +18,7 @@ import { GameSteps, ServerMessagesTypes } from '@/values/game';
 import { CellModel } from '@/models/cell.model';
 import { secondsToHHMMSS } from '@/utils/time';
 import dynamic from 'next/dynamic';
+import { KonvaEventObject } from 'konva/lib/Node';
 
 const Canvas = dynamic(() => import('./canvas/canvas'), {
   ssr: false,
@@ -41,6 +42,7 @@ export default function GameRoomPage() {
     col: number;
     content: CellContent
   } | null>(null);
+  const [playerColorHex, setPlayerColorHex] = useState("#000000");
 
   const router = useRouter();
   const {gameRoom, setGameRoom} = useGameRoomContext();
@@ -63,11 +65,10 @@ export default function GameRoomPage() {
     const maxSize = 100;
     const minSize = 30;
     let maxSizeForWidth = Math.floor(width/dimensions.rows);
-    console.log(width, maxSizeForWidth)
-    if(maxSizeForWidth*dimensions.rows > (maxSize + getCellGap(maxSize))*dimensions.rows + getCellGap(maxSize)*1.4){console.log(">")
+    if(maxSizeForWidth*dimensions.rows > (maxSize + getCellGap(maxSize))*dimensions.rows + getCellGap(maxSize)*1.4){
       return maxSize;
     }
-    if(maxSizeForWidth*dimensions.rows <= (minSize + getCellGap(minSize))*dimensions.rows + getCellGap(minSize)){console.log("<")
+    if(maxSizeForWidth*dimensions.rows <= (minSize + getCellGap(minSize))*dimensions.rows + getCellGap(minSize)){
       return minSize;
     }
     let customSize = Math.floor(maxSize*0.8);console.log(customSize)
@@ -82,6 +83,10 @@ export default function GameRoomPage() {
     }
     return 2;
   }
+  function handleWheelRoll(evt: any){
+    setCellSize(cellSize - evt.deltaY);
+  }
+
   const handleCellSizeChange = (value: number) => setCellSize(value);
 
   useEffect(()=>{
@@ -112,6 +117,7 @@ export default function GameRoomPage() {
     if(!gameRoom){
       return;
     }
+    console.log(gameRoom.sessionId)
     setDimensions({
       cols: gameRoom.state.cols,
       rows: gameRoom.state.rows
@@ -168,6 +174,10 @@ export default function GameRoomPage() {
     }
     setCells([...clls]);
   }, [dimensions]);
+  useEffect(()=>{
+    console.log(players.keys(), (players.get(gameRoom!.sessionId)))
+    setPlayerColorHex(getColorHex(players.get(gameRoom!.sessionId)?.color as PlayerColorName));
+  }, [players]);
   useEffect(() => {
     Array.from(revealedContents.keys()).forEach(k => {
       let clls = cells;
@@ -191,7 +201,7 @@ export default function GameRoomPage() {
   }, [lastRevealed]);
 
   return (
-    <Box width="100%" height="100vh" userSelect={"none"}>
+    <Box width="100%" height="100vh" userSelect={"none"} onWheel={handleWheelRoll}>
       {/* <Center height={"100%"}>
         <SimpleGrid columns={dimensions.cols} gap={getCellGap()}>
           {
@@ -202,7 +212,7 @@ export default function GameRoomPage() {
         </SimpleGrid>
       </Center> */}
 
-      <Canvas cellsData={cellsData} rows={dimensions.rows} cols={dimensions.cols} cellSize={cellSize} cellGap={cellGap} />
+      <Canvas cellsData={cellsData} rows={dimensions.rows} cols={dimensions.cols} cellSize={cellSize} cellGap={cellGap} playerColorHex={playerColorHex} />
 
       {/* Fixed position */}
       <PlayersRankingBox players={players} ranking={ranking} />

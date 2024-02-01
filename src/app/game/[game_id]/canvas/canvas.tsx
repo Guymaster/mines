@@ -3,13 +3,16 @@ import { CellModel } from '@/models/cell.model';
 import { useGameRoomContext } from '@/providers/game_room.provider';
 import { useEffect, useState } from 'react';
 import { Stage, Layer, Circle, RegularPolygon, Rect, Group } from 'react-konva';
+import Cell from '../cell.component';
+import { KonvaEventObject } from 'konva/lib/Node';
 
 function Canvas(props: {
   cellsData: Array<CellModel>,
   rows: number,
   cols: number,
   cellSize: number,
-  cellGap: number
+  cellGap: number,
+  playerColorHex: string
 }) {
   const {gameRoom, setGameRoom} = useGameRoomContext();
 
@@ -29,14 +32,7 @@ function Canvas(props: {
             chunkIntoN(props.cellsData, props.rows).map(
               (arr, i) => arr.map(
                 (cell, j) => (
-                  <Rect
-                    key={`${i}:${j}`}
-                    x={props.cellSize*i + props.cellGap*i}
-                    y={props.cellSize*j+props.cellGap*j}
-                    width={props.cellSize}
-                    height={props.cellSize}
-                    fill="black"
-                  />
+                  <Cell size={props.cellSize} gap={props.cellGap} data={cell} playerColorHex={props.playerColorHex} />
                 )
               )
             )
