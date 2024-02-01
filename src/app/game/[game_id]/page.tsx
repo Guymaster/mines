@@ -1,6 +1,6 @@
 'use client'
 
-import { Text, Box, Flex, Spacer, Input, Button, HStack, useNumberInput, Center, SimpleGrid, Container, Card, CardBody, IconButton, useToast } from '@chakra-ui/react'
+import { Text, Box, Flex, Spacer, Input, Button, HStack, useNumberInput, Center, SimpleGrid, Container, Card, CardBody, IconButton, useToast, Circle, useDisclosure, ModalFooter, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Slider, SliderFilledTrack, SliderThumb, SliderTrack } from '@chakra-ui/react'
 import Cell from './cell.component'
 import useDeviceSize from '@/hooks/use_device_size.hook';
 import PlayersRankingBox from './players_ranking_box.component';
@@ -17,6 +17,11 @@ import { CellContent } from '@/models/cell_content.model';
 import { GameSteps, ServerMessagesTypes } from '@/values/game';
 import { CellModel } from '@/models/cell.model';
 import { secondsToHHMMSS } from '@/utils/time';
+import dynamic from 'next/dynamic';
+
+const Canvas = dynamic(() => import('./canvas/canvas'), {
+  ssr: false,
+});
 
 export default function GameRoomPage() {
   const gameClient = new Client(`ws://${GameServerConfig.url}`);
@@ -40,8 +45,11 @@ export default function GameRoomPage() {
   const router = useRouter();
   const {gameRoom, setGameRoom} = useGameRoomContext();
   const params = useParams<{ game_id: string}>();
+  const settingsModal = useDisclosure();
   const [width, height] = useDeviceSize();
   const toast = useToast();
+  const [cellSize, setCellSize] = useState<number>(getCellSize());
+  const [cellGap, setCellGap] = useState<number>(getCellGap(cellSize)); 
 
   function copyRoomIdToClipboard(){
     navigator.clipboard.writeText(window.location.href);
@@ -52,24 +60,36 @@ export default function GameRoomPage() {
   }
 
   function getCellSize(): number {
-    return (height-getCellGap()*2-(height/3.5))/dimensions.rows;
-  }
-
-  function getCellGap(): number {
-    if(dimensions.rows < 8){
-      return 2;
+    const maxSize = 100;
+    const minSize = 30;
+    let maxSizeForWidth = Math.floor(width/dimensions.rows);
+    console.log(width, maxSizeForWidth)
+    if(maxSizeForWidth*dimensions.rows > (maxSize + getCellGap(maxSize))*dimensions.rows + getCellGap(maxSize)*1.4){console.log(">")
+      return maxSize;
     }
-    else if (dimensions.rows < 6){
+    if(maxSizeForWidth*dimensions.rows <= (minSize + getCellGap(minSize))*dimensions.rows + getCellGap(minSize)){console.log("<")
+      return minSize;
+    }
+    let customSize = Math.floor(maxSize*0.8);console.log(customSize)
+    return customSize;
+  }
+  function getCellGap(size: number): number {
+    if(size > 50){
       return 10;
     }
-    else if (dimensions.rows < 7){
+    if (size > 30){
       return 5;
     }
-    else{
-      return 1;
-    }
+    return 2;
   }
+  const handleCellSizeChange = (value: number) => setCellSize(value);
 
+  useEffect(()=>{
+    setCellSize(getCellSize());
+  }, [width]);
+  useEffect(()=>{
+    setCellGap(getCellGap(cellSize));
+  }, [cellSize]);
   useEffect(() => {
     if(gameRoom){
       if(gameRoom.connection.isOpen){
@@ -172,7 +192,7 @@ export default function GameRoomPage() {
 
   return (
     <Box width="100%" height="100vh" userSelect={"none"}>
-      <Center height={"100%"}>
+      {/* <Center height={"100%"}>
         <SimpleGrid columns={dimensions.cols} gap={getCellGap()}>
           {
            cellsData.map(d => (
@@ -180,7 +200,9 @@ export default function GameRoomPage() {
            ))
           }
         </SimpleGrid>
-      </Center>
+      </Center> */}
+
+      <Canvas cellsData={cellsData} rows={dimensions.rows} cols={dimensions.cols} cellSize={cellSize} cellGap={cellGap} />
 
       {/* Fixed position */}
       <PlayersRankingBox players={players} ranking={ranking} />
@@ -206,6 +228,7 @@ export default function GameRoomPage() {
             transition: "0.3s"
           }}
           border={"none"}
+          onClick={settingsModal.onOpen}
           icon={<SettingsIcon />}
         />
       </Box>
@@ -214,6 +237,28 @@ export default function GameRoomPage() {
           secondsToHHMMSS(count)
         }
       </Box>
+
+      {/*Hideables */}
+      <Modal isOpen={settingsModal.isOpen} onClose={settingsModal.onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Settings</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Slider
+              flex='1'
+              focusThumbOnChange={false}
+              value={cellSize}
+              onChange={handleCellSizeChange}
+            >
+              <SliderTrack>
+                <SliderFilledTrack />
+              </SliderTrack>
+              <SliderThumb fontSize='sm' boxSize='32px' children={cellSize} />
+            </Slider>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
   )
 }
