@@ -4,7 +4,6 @@ import { useGameRoomContext } from '@/providers/game_room.provider';
 import { useEffect, useState } from 'react';
 import { Stage, Layer, Circle, RegularPolygon, Rect, Group } from 'react-konva';
 import Cell from '../cell.component';
-import { KonvaEventObject } from 'konva/lib/Node';
 
 function Canvas(props: {
   cellsData: Array<CellModel>,

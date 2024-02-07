@@ -4,14 +4,16 @@ import { CellModel } from '@/models/cell.model';
 import { useGameRoomContext } from '@/providers/game_room.provider';
 import { ClientMessagesTypes } from '@/values/game';
 import { Card, Center } from '@chakra-ui/react'
-import { useState } from 'react';
-import { Rect, Text } from 'react-konva';
+import { useEffect, useState } from 'react';
+import { Rect, Text, Image } from 'react-konva';
+import useImage from 'use-image';
 
 export default function Cell(props: {size: number, gap: number, data: CellModel, playerColorHex: string}) {
   const fontSize = Math.floor(0.8*props.size);
 
   const {gameRoom, setGameRoom} = useGameRoomContext();
   const [isHovered, setIsHovered] = useState(false);
+  const [bombImage] = useImage("/bomb.png");
 
   const handleClick = (event: any) => {
     console.log(`Clicked on cell ${props.data.row}:${props.data.col}`);
@@ -29,6 +31,11 @@ export default function Cell(props: {size: number, gap: number, data: CellModel,
   const handleMouseLeave = (event: any) => {
     setIsHovered(false)
   };
+
+  useEffect(()=>{
+    
+  }, []);
+
   return (
     <>
       <Rect
@@ -43,6 +50,15 @@ export default function Cell(props: {size: number, gap: number, data: CellModel,
         onMouseLeave={handleMouseLeave}
         onClick={handleClick}
       />
+      {(props.data.content && props.data.content.isBomb) &&
+        <Image image={bombImage}
+          key={`img${props.data.row}:${props.data.col}`}
+          x={props.size*props.data.row + props.gap*props.data.row + Math.floor(props.size*0.1)}
+          y={props.size*props.data.col+props.gap*props.data.col + Math.floor(props.size*0.1)}
+          width={Math.floor(props.size*0.8)}
+          height={Math.floor(props.size*0.8)}
+        />
+      }
       {(props.data.content && !props.data.content.isBomb && props.data.content.number != 0) &&
         <Text
           text={props.data.content.number.toString()} 

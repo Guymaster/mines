@@ -71,7 +71,7 @@ export default function GameRoomPage() {
     if(maxSizeForWidth*dimensions.rows <= (minSize + getCellGap(minSize))*dimensions.rows + getCellGap(minSize)){
       return minSize;
     }
-    let customSize = Math.floor(maxSize*0.8);console.log(customSize)
+    let customSize = Math.floor(maxSize*0.8);
     return customSize;
   }
   function getCellGap(size: number): number {
@@ -117,7 +117,6 @@ export default function GameRoomPage() {
     if(!gameRoom){
       return;
     }
-    console.log(gameRoom.sessionId)
     setDimensions({
       cols: gameRoom.state.cols,
       rows: gameRoom.state.rows
@@ -175,7 +174,6 @@ export default function GameRoomPage() {
     setCells([...clls]);
   }, [dimensions]);
   useEffect(()=>{
-    console.log(players.keys(), (players.get(gameRoom!.sessionId)))
     setPlayerColorHex(getColorHex(players.get(gameRoom!.sessionId)?.color as PlayerColorName));
   }, [players]);
   useEffect(() => {
@@ -191,7 +189,7 @@ export default function GameRoomPage() {
     }
     setCellsData(_cellsData);
   }, [revealedContents, cells]);
-  useEffect(() => {console.log("cells data", cellsData)
+  useEffect(() => {
   }, [cellsData]);
   useEffect(() => {
     if(!lastRevealed || !lastRevealed.content || lastRevealed.col == undefined || lastRevealed.row == undefined){
