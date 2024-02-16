@@ -41,7 +41,7 @@ export default function Cell(props: {size: number, gap: number, data: CellModel,
       <Rect
         key={`${props.data.row}:${props.data.col}`}
         x={props.size*props.data.row + props.gap*props.data.row}
-        y={props.size*props.data.col+props.gap*props.data.col - props.size/2 + fontSize/2 - 4}
+        y={props.size*props.data.col+props.gap*props.data.col }
         width={props.size}
         height={props.size}
         fill={(isHovered? props.playerColorHex : "gray")}
@@ -53,10 +53,10 @@ export default function Cell(props: {size: number, gap: number, data: CellModel,
       {(props.data.content && props.data.content.isBomb) &&
         <Image image={bombImage}
           key={`img${props.data.row}:${props.data.col}`}
-          x={props.size*props.data.row + props.gap*props.data.row + Math.floor(props.size*0.1)}
-          y={props.size*props.data.col+props.gap*props.data.col + Math.floor(props.size*0.1)}
-          width={Math.floor(props.size*0.8)}
-          height={Math.floor(props.size*0.8)}
+          x={props.size*props.data.row + props.gap*props.data.row + Math.floor(props.size*0.2)}
+          y={props.size*props.data.col+props.gap*props.data.col + Math.floor(props.size*0.2)}
+          width={Math.floor(props.size*0.6)}
+          height={Math.floor(props.size*0.6)}
         />
       }
       {(props.data.content && !props.data.content.isBomb && props.data.content.number != 0) &&
@@ -65,7 +65,7 @@ export default function Cell(props: {size: number, gap: number, data: CellModel,
           key={`text${props.data.row}:${props.data.col}`}
           align='center'
           x={props.size*props.data.row + props.gap*props.data.row}
-          y={props.size*props.data.col+props.gap*props.data.col}
+          y={props.size*props.data.col+props.gap*props.data.col + (props.size - fontSize)*0.7}
           width={props.size}
           height={props.size}
           onMouseEnter={handleMouseEnter}
