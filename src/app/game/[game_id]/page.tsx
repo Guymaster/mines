@@ -1,11 +1,10 @@
 'use client'
 
 import { Text, Box, Flex, Spacer, Input, Button, HStack, useNumberInput, Center, SimpleGrid, Container, Card, CardBody, IconButton, useToast, Circle, useDisclosure, ModalFooter, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Slider, SliderFilledTrack, SliderThumb, SliderTrack } from '@chakra-ui/react'
-import Cell from './cell.component'
 import useDeviceSize from '@/hooks/use_device_size.hook';
 import PlayersRankingBox from './players_ranking_box.component';
 import Player from '@/models/player.model';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { PlayerColorName, getColorHex } from '@/values/colors';
 import { SettingsIcon } from '@chakra-ui/icons';
 import { useGameRoomContext } from '@/providers/game_room.provider';
@@ -18,7 +17,6 @@ import { GameSteps, ServerMessagesTypes } from '@/values/game';
 import { CellModel } from '@/models/cell.model';
 import { secondsToHHMMSS } from '@/utils/time';
 import dynamic from 'next/dynamic';
-import { KonvaEventObject } from 'konva/lib/Node';
 
 const Canvas = dynamic(() => import('./canvas/canvas'), {
   ssr: false,
@@ -43,7 +41,6 @@ export default function GameRoomPage() {
     content: CellContent
   } | null>(null);
   const [playerColorHex, setPlayerColorHex] = useState("#000000");
-
   const router = useRouter();
   const {gameRoom, setGameRoom} = useGameRoomContext();
   const params = useParams<{ game_id: string}>();
@@ -86,6 +83,34 @@ export default function GameRoomPage() {
   function handleWheelRoll(evt: any){
     setCellSize(cellSize - evt.deltaY);
   }
+  async function newConnection() {
+    let g = await gameClient.joinById(params.game_id);
+    if(!g){
+      throw new Error();
+    }
+    setGameRoom(g);
+    LocalStorage.setReconnectToken(g.reconnectionToken);
+  }
+  async function tryReconnection() {
+    const gameClient = new Client(`ws://${GameServerConfig.url}`);
+    const reconnectToken = LocalStorage.getReconnectToken();
+    if(reconnectToken){
+      if(reconnectToken.split(":")[0] != params.game_id){
+        LocalStorage.setReconnectToken(null);
+        router.push(`/game/${reconnectToken.split(":")[0]}`);
+        return;
+      }
+      let g = await gameClient.reconnect(reconnectToken);
+      if(!g){
+        newConnection();
+        return;
+      }
+      setGameRoom(g);
+      LocalStorage.setReconnectToken(g.reconnectionToken);
+      return;
+    }
+    newConnection();
+  }
 
   const handleCellSizeChange = (value: number) => setCellSize(value);
 
@@ -96,8 +121,8 @@ export default function GameRoomPage() {
     setCellGap(getCellGap(cellSize));
   }, [cellSize]);
   useEffect(() => {
-    if(gameRoom){
-      if(gameRoom.connection.isOpen){
+    if(gameRoom){console.log("YA ROOM")
+      if(gameRoom.connection.isOpen){console.log("EN PLUS C OPEN")
         if(gameRoom.id == params.game_id){
           return;
         }
@@ -105,15 +130,9 @@ export default function GameRoomPage() {
         return;
       }
     }
-    gameClient.joinById(params.game_id)
-    .catch(e => {
-      throw new Error();
-    })
-    .then(room => {
-      setGameRoom(room);
-    });
+    tryReconnection();
   }, []);
-  useEffect(() => {
+  useEffect(() => {console.log("game changed", gameRoom, gameRoom?.state)
     if(!gameRoom){
       return;
     }
@@ -126,7 +145,6 @@ export default function GameRoomPage() {
     setGameStep(gameRoom.state.step);
     setCount(gameRoom.state.count);
     setRevealedContents(gameRoom.state.revealedContents);
-    //TODO Listen to room events
     gameRoom.onStateChange(state => {
       setPlayers(state.players);
       setRanking(Array.from(state.players.values()).sort((p1, p2) => p1.score - p2.score).map(p => p.id));
@@ -174,6 +192,9 @@ export default function GameRoomPage() {
     setCells([...clls]);
   }, [dimensions]);
   useEffect(()=>{
+    if(!gameRoom){
+      return;
+    }
     setPlayerColorHex(getColorHex(players.get(gameRoom!.sessionId)?.color as PlayerColorName));
   }, [players]);
   useEffect(() => {
@@ -200,15 +221,6 @@ export default function GameRoomPage() {
 
   return (
     <Box width="100%" height="100vh" userSelect={"none"} onWheel={handleWheelRoll}>
-      {/* <Center height={"100%"}>
-        <SimpleGrid columns={dimensions.cols} gap={getCellGap()}>
-          {
-           cellsData.map(d => (
-            <Cell size={getCellSize()} data={d} key={`${d.row}:${d.col}`} playerColorHex={getColorHex(players.get(gameRoom!.sessionId)!.color as PlayerColorName)} />
-           ))
-          }
-        </SimpleGrid>
-      </Center> */}
 
       <Canvas cellsData={cellsData} rows={dimensions.rows} cols={dimensions.cols} cellSize={cellSize} cellGap={cellGap} playerColorHex={playerColorHex} />
 

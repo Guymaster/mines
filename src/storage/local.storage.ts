@@ -22,7 +22,11 @@ export abstract class LocalStorage {
         }
         return value;
     }
-    static setReconnectToken(value: string) {
+    static setReconnectToken(value: string | null) {
+        if(value == null){
+            localStorage.removeItem(LocalStorageFieldName.RECONNECT_TOKEN);
+            return;
+        }
         localStorage.setItem(LocalStorageFieldName.RECONNECT_TOKEN, value);
     }
 };

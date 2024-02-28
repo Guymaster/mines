@@ -11,7 +11,7 @@ function Canvas(props: {
   cols: number,
   cellSize: number,
   cellGap: number,
-  playerColorHex: string
+  playerColorHex: string,
 }) {
   const {gameRoom, setGameRoom} = useGameRoomContext();
 
@@ -21,7 +21,6 @@ function Canvas(props: {
       arr.slice(i * size, i * size + size)
     );
   }
-
   const tableSize = (props.cellSize*props.rows + props.cellGap*(props.rows+1));
   return (
     <Stage width={window.innerWidth} height={window.innerHeight}>
