@@ -27,10 +27,7 @@ export default function Cell(props: {size: number, gap: number, data: CellModel,
   const handleMouseEnter = (event: any) => {
     if(!gameRoom){
       return;
-    }console.log("SECTOR: ", {
-      posX: props.data.col,
-      posY: props.data.row
-    })
+    }
     gameRoom.send(ClientMessagesTypes.CURSOR_POSITION, {
       posX: props.data.col,
       posY: props.data.row

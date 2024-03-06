@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Text, Box, Flex, Spacer, Input, Button, HStack, useNumberInput, Center, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, useDisclosure, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Select, Stack, InputGroup, InputLeftAddon, InputRightAddon, Checkbox, Badge, useToast } from '@chakra-ui/react';
 import { ArrowForwardIcon, EditIcon } from '@chakra-ui/icons';
 import { PlayerColorName, getColorHex } from '@/values/colors';
@@ -10,7 +10,7 @@ import { GameDifficulties, GameTypes } from '@/values/game';
 import GameServerConfig from '@/configs/game_server.config';
 import { Client } from 'colyseus.js';
 import { useGameRoomContext } from '@/providers/game_room.provider';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 type UserPreferences = {
   name: string | null,
@@ -39,6 +39,8 @@ export default function Home() {
   const gameCreate = useDisclosure();
   const toast = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const searchGameIdFieldRef = useRef(null);
 
   const handleJoinGame = async (e: any) => {
     if(e.type == "keydown" && e.key != "Enter"){
@@ -105,8 +107,15 @@ export default function Home() {
   const onSearchGameIdChange = (e: any) => {
     setSearchGameId(e.target.value);
   };
+  const fillGameId = () => {
+    let targetGameId = searchParams.get("game_id");
+    if(targetGameId){
+      setSearchGameId(targetGameId);
+    }
+  };
 
   useEffect(() => {
+    fillGameId();
     setPreferences({
       name: LocalStorage.getPreference(LocalStorageFieldName.PREF_NAME),
       color: LocalStorage.getPreference(LocalStorageFieldName.PREF_COLOR)? LocalStorage.getPreference(LocalStorageFieldName.PREF_COLOR)! as PlayerColorName : PlayerColorName.BLUE
@@ -136,7 +145,7 @@ export default function Home() {
         </Flex>
         <Flex flexDirection={"column"} justifyContent={"center"} height={"50%"}>
           <Flex flexDirection={"row"} justifyContent={"center"}>
-            <Input maxWidth={{base: "70%", lg: 500}} borderRadius={0} borderLeftRadius={20} _focus={{ boxShadow: "none", outline: "none" }} placeholder='Enter a game ID' fontWeight={"bold"} fontSize={{base: "medium", lg: "large"}} onKeyDown={handleJoinGame} padding={{base: 3, lg: 7}} onChange={onSearchGameIdChange} />
+            <Input maxWidth={{base: "70%", lg: 500}} borderRadius={0} borderLeftRadius={20} _focus={{ boxShadow: "none", outline: "none" }} placeholder='Enter a game ID' fontWeight={"bold"} fontSize={{base: "medium", lg: "large"}} onKeyDown={handleJoinGame} padding={{base: 3, lg: 7}} onChange={onSearchGameIdChange} value={searchGameId} />
             <Button borderRadius={0} borderRightRadius={20} maxWidth={{base: "15%", lg: 70}} colorScheme='blue' padding={{base: 3, lg: 7}} isLoading={isGameJoinLoading} onClick={handleJoinGame}>Join</Button>
           </Flex>
         </Flex>

@@ -43,7 +43,7 @@ export default function GameRoomPage() {
   const [playerColorHex, setPlayerColorHex] = useState("#000000");
   const router = useRouter();
   const {gameRoom, setGameRoom} = useGameRoomContext();
-  const params = useParams<{ game_id: string}>();
+  const params = useParams<{game_id: string}>();
   const settingsModal = useDisclosure();
   const [width, height] = useDeviceSize();
   const toast = useToast();
@@ -51,10 +51,10 @@ export default function GameRoomPage() {
   const [cellGap, setCellGap] = useState<number>(getCellGap(cellSize)); 
 
   function copyRoomIdToClipboard(){
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(gameRoom?.id!);
     toast({
-      title: "Game link copied to clipboard.",
-      duration: 3000
+      title: "Game ID copied to clipboard.",
+      duration: 2000
     });
   }
 
@@ -83,33 +83,15 @@ export default function GameRoomPage() {
   function handleWheelRoll(evt: any){
     setCellSize(cellSize - evt.deltaY);
   }
-  async function newConnection() {
-    let g = await gameClient.joinById(params.game_id);
-    if(!g){
-      throw new Error();
-    }
-    setGameRoom(g);
-    LocalStorage.setReconnectToken(g.reconnectionToken);
-  }
-  async function tryReconnection() {
-    const gameClient = new Client(`ws://${GameServerConfig.url}`);
-    const reconnectToken = LocalStorage.getReconnectToken();
-    if(reconnectToken){
-      if(reconnectToken.split(":")[0] != params.game_id){
-        LocalStorage.setReconnectToken(null);
-        router.push(`/game/${reconnectToken.split(":")[0]}`);
-        return;
-      }
-      let g = await gameClient.reconnect(reconnectToken);
-      if(!g){
-        newConnection();
-        return;
-      }
-      setGameRoom(g);
-      LocalStorage.setReconnectToken(g.reconnectionToken);
+  async function verifyConnection() {
+    if(!gameRoom){
+      router.push(`/?game_id=${params.game_id}`);
       return;
     }
-    newConnection();
+    if(gameRoom?.id != params.game_id){
+      router.push(`/game/${params.game_id}`);
+      return;
+    }
   }
 
   const handleCellSizeChange = (value: number) => setCellSize(value);
@@ -121,18 +103,9 @@ export default function GameRoomPage() {
     setCellGap(getCellGap(cellSize));
   }, [cellSize]);
   useEffect(() => {
-    if(gameRoom){console.log("YA ROOM")
-      if(gameRoom.connection.isOpen){console.log("EN PLUS C OPEN")
-        if(gameRoom.id == params.game_id){
-          return;
-        }
-        router.push(`/game/${gameRoom.id}`);
-        return;
-      }
-    }
-    tryReconnection();
+    verifyConnection();
   }, []);
-  useEffect(() => {console.log("game changed", gameRoom, gameRoom?.state)
+  useEffect(() => {
     if(!gameRoom){
       return;
     }
@@ -222,7 +195,7 @@ export default function GameRoomPage() {
   return (
     <Box width="100%" height="100vh" userSelect={"none"} onWheel={handleWheelRoll}>
 
-      <Canvas cellsData={cellsData} rows={dimensions.rows} cols={dimensions.cols} cellSize={cellSize} cellGap={cellGap} playerColorHex={playerColorHex} />
+      <Canvas key={gameRoom?.id} cellsData={cellsData} rows={dimensions.rows} cols={dimensions.cols} cellSize={cellSize} cellGap={cellGap} playerColorHex={playerColorHex} />
 
       {/* Fixed position */}
       <PlayersRankingBox players={players} ranking={ranking} />

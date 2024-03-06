@@ -13,7 +13,7 @@ export default function PlayersRankingBox(props: {
       {
         props.ranking.map((id) => {
           return (
-            <Box display={"flex"}>
+            <Box display={"flex"} key={`rank-${id}`}>
               <Text marginLeft={0} marginRight={3} color={getColorHex(props.players.get(id)!.color as PlayerColorName)} opacity={0.7}>{props.players.get(id)!.name}</Text>
               <Text color={"gray"}>{props.players.get(id)!.score}</Text>
             </Box>
