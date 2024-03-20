@@ -25,7 +25,7 @@ export default function Home() {
     max: 50,
     precision: 0,
   });
-  const gameClient = new Client(`ws://${GameServerConfig.url}`);
+  const gameClient = new Client(`wss://${GameServerConfig.url}`);
   const [preferences, setPreferences] = useState<UserPreferences>({
     name: null,
     color: PlayerColorName.BLUE

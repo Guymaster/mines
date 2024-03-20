@@ -50,8 +50,8 @@ export default function Cell(props: {size: number, gap: number, data: CellModel,
         y={props.size*props.data.col+props.gap*props.data.col }
         width={props.size}
         height={props.size}
-        fill={(isHovered? props.playerColorHex : "gray")}
-        opacity={(props.data.content? 0 : 1)}
+        fill={(props.data.content?.isBomb)? "#AA4A44" : (isHovered? props.playerColorHex : "gray")}
+        opacity={(props.data.content? (props.data.content.isBomb? 1 : 0) : 1)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={handleClick}

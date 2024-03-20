@@ -83,6 +83,11 @@ export default function GameRoomPage() {
   function handleWheelRoll(evt: any){
     setCellSize(cellSize - evt.deltaY);
   }
+  async function handleQuitRoom(evt: any){
+    await gameRoom?.leave(true);
+    setGameRoom(null);
+    router.push(`/`);
+  }
   async function verifyConnection() {
     if(!gameRoom){
       router.push(`/?game_id=${params.game_id}`);
@@ -232,12 +237,22 @@ export default function GameRoomPage() {
       </Box>
 
       {/*Hideables */}
+      <Box 
+        position={"fixed"} 
+        bottom={3} left={3}
+        backgroundColor={playerColorHex}
+        padding={"5px 20px"}
+        borderTopRightRadius={25}
+        borderBottomRightRadius={25}
+        display={gameStep == GameSteps.ENDED? "block" : "none"}
+      >Partie suivante &#62;</Box>
       <Modal isOpen={settingsModal.isOpen} onClose={settingsModal.onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Settings</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
+            <Text>Zoom</Text>
             <Slider
               flex='1'
               focusThumbOnChange={false}
@@ -249,6 +264,10 @@ export default function GameRoomPage() {
               </SliderTrack>
               <SliderThumb fontSize='sm' boxSize='32px' children={cellSize} />
             </Slider>
+            <Button colorScheme={"red"} width={"100%"}
+              marginTop={10}
+              onClick={handleQuitRoom}
+            >Quitter</Button>
           </ModalBody>
         </ModalContent>
       </Modal>

@@ -30,7 +30,7 @@ function Canvas(props: {
             chunkIntoN(props.cellsData, props.rows).map(
               (arr, i) => arr.map(
                 (cell, j) => (
-                  <Cell size={props.cellSize} gap={props.cellGap} data={cell} playerColorHex={props.playerColorHex} />
+                  <Cell size={props.cellSize} gap={props.cellGap} data={cell} playerColorHex={props.playerColorHex} key={`cell${j}`} />
                 )
               )
             )
