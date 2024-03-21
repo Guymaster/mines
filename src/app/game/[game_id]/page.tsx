@@ -262,7 +262,7 @@ export default function GameRoomPage() {
               <SliderTrack>
                 <SliderFilledTrack />
               </SliderTrack>
-              <SliderThumb fontSize='sm' boxSize='32px' children={cellSize} />
+              <SliderThumb fontSize='sm' boxSize='32px'>{cellSize}</SliderThumb>
             </Slider>
             <Button colorScheme={"red"} width={"100%"}
               marginTop={10}

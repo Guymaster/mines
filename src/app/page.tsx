@@ -201,11 +201,11 @@ export default function Home() {
                 <DrawerBody>
                   <InputGroup>
                     <Input placeholder='Rows number' marginBottom={5} name={"rows"} defaultValue={5} type='number' step={5} min={5} max={50} required />
-                    <InputRightAddon children='rows' />
+                    <InputRightAddon>rows</InputRightAddon>
                   </InputGroup>
                   <InputGroup>
                     <Input placeholder='Cols number' marginBottom={5} name={"cols"} defaultValue={5} type='number' step={5} min={5} max={50} required />
-                    <InputRightAddon children='cols' />
+                    <InputRightAddon>cols</InputRightAddon>
                   </InputGroup>
                   <Select name={"difficulty"} defaultValue={GameDifficulties.INTERMEDIARY} marginBottom={5} required >
                     <option value={GameDifficulties.BEGINNER}>Beginner</option>
